@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from '@google/genai';
 import { AiResponse } from '../types';
 
@@ -18,8 +17,9 @@ export const generateAppCode = async (prompt: string): Promise<AiResponse> => {
       User prompt: "${prompt}"
 
       Your task is to:
-      1.  Provide a detailed, step-by-step thought process on how to build this application. Explain the component structure and logic.
-      2.  List all the files and folders you would create for this React application. Use a flat list of full paths starting from the 'src/' directory.
+      1.  Provide a short, conversational summary of your plan.
+      2.  Provide a detailed, step-by-step thought process on how to build this application. Explain the component structure and logic.
+      3.  List all the files and folders you would create for this React application. Use a flat list of full paths starting from the 'src/' directory.
 
       Provide the response in a structured JSON format.`,
       config: {
@@ -27,6 +27,10 @@ export const generateAppCode = async (prompt: string): Promise<AiResponse> => {
         responseSchema: {
           type: Type.OBJECT,
           properties: {
+            summary: {
+              type: Type.STRING,
+              description: "A short, conversational summary of your plan to build the application.",
+            },
             thought: {
               type: Type.STRING,
               description: "Your detailed thought process on how to build the application, including component structure and logic.",
@@ -39,7 +43,7 @@ export const generateAppCode = async (prompt: string): Promise<AiResponse> => {
               },
             },
           },
-          required: ['thought', 'fileList'],
+          required: ['summary', 'thought', 'fileList'],
         },
       },
     });
@@ -54,5 +58,34 @@ export const generateAppCode = async (prompt: string): Promise<AiResponse> => {
   } catch (error) {
     console.error("Error generating app code:", error);
     throw new Error("Failed to get a response from the AI. Please check your API key and try again.");
+  }
+};
+
+export const refactorCode = async (code: string): Promise<string> => {
+  try {
+    const model = 'gemini-2.5-flash';
+    const prompt = `You are an expert senior software engineer specializing in React and TypeScript.
+Refactor the following code for improved readability, maintainability, and performance.
+- Apply modern best practices.
+- Add comments where necessary to clarify complex logic.
+- Do not change the component's functionality or props interface.
+- Return ONLY the raw, refactored code. Do not include explanations or markdown fences like \`\`\`tsx.
+
+Original code:
+---
+${code}
+---
+Refactored code:
+`;
+
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: prompt,
+    });
+
+    return response.text.trim();
+  } catch (error) {
+    console.error("Error refactoring code:", error);
+    throw new Error("Failed to get a response from the AI for refactoring.");
   }
 };

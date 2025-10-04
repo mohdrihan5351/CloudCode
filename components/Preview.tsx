@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { CodeIcon, RocketIcon } from './icons';
 import { MockComponentType } from '../types';
 
@@ -17,31 +16,55 @@ const InitialState: React.FC = () => (
 
 const LoadingState: React.FC = () => (
     <div className="text-center text-zinc-400">
-        <div className="w-12 h-12 border-4 border-t-transparent border-orange-500 rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-lg">Building your app...</p>
-        <p className="text-sm">The AI is thinking and generating the code.</p>
+        <div className="w-12 h-12 border-4 border-t-transparent border-orange-500 rounded-full animate-spin mx-auto"></div>
     </div>
 );
 
-const MockLogin: React.FC = () => (
-    <div className="w-full max-w-sm p-8 space-y-6 bg-zinc-900 rounded-lg shadow-xl">
-        <h2 className="text-3xl font-bold text-center text-white">Welcome Back</h2>
-        <div className="space-y-4">
-            <div>
-                <label className="text-sm font-medium text-zinc-400 block mb-2">Email address</label>
-                <input type="email" placeholder="you@example.com" className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:ring-orange-500 focus:border-orange-500 focus:outline-none"/>
-            </div>
-            <div>
-                <label className="text-sm font-medium text-zinc-400 block mb-2">Password</label>
-                <input type="password" placeholder="••••••••" className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:ring-orange-500 focus:border-orange-500 focus:outline-none"/>
-            </div>
+const MockLogin: React.FC = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        alert(`Signing in with Email: ${email}`);
+    };
+
+    return (
+        <div className="w-full max-w-sm p-8 space-y-6 bg-zinc-900 rounded-lg shadow-xl animate-fade-in">
+            <h2 className="text-3xl font-bold text-center text-white">Welcome Back</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label className="text-sm font-medium text-zinc-400 block mb-2" htmlFor="email">Email address</label>
+                    <input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
+                        required
+                    />
+                </div>
+                <div>
+                    <label className="text-sm font-medium text-zinc-400 block mb-2" htmlFor="password">Password</label>
+                    <input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
+                        required
+                    />
+                </div>
+                <button type="submit" className="w-full py-2 px-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-md transition-colors">Sign In</button>
+            </form>
         </div>
-        <button className="w-full py-2 px-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-md transition-colors">Sign In</button>
-    </div>
-);
+    );
+};
 
 const MockDashboard: React.FC = () => (
-     <div className="w-full max-w-4xl p-8 bg-zinc-900 rounded-lg shadow-xl">
+     <div className="w-full max-w-4xl p-8 bg-zinc-900 rounded-lg shadow-xl animate-fade-in">
         <h2 className="text-3xl font-bold text-white mb-6">Dashboard</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-zinc-800 p-6 rounded-md">
@@ -73,6 +96,15 @@ const Preview: React.FC<PreviewProps> = ({ mockComponent }) => {
 
     return (
         <div className="w-full h-full flex items-center justify-center p-4 bg-black">
+             <style>{`
+                @keyframes fade-in {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fade-in 0.5s ease-out forwards;
+                }
+            `}</style>
             {renderContent()}
         </div>
     );

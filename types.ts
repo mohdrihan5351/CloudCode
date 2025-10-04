@@ -1,5 +1,6 @@
 
 export interface AiResponse {
+  summary: string;
   thought: string;
   fileList: string[];
 }

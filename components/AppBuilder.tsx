@@ -1,12 +1,11 @@
-
 import React, { useState, useCallback } from 'react';
-import PromptInput from './PromptInput';
-import ThoughtProcess from './ThoughtProcess';
 import Preview, { InitialPreview, LoadingPreview } from './Preview';
-import { generateAppCode } from '../services/geminiService';
+import { generateAppCode, refactorCode } from '../services/geminiService';
 import type { AiResponse, MockComponentType } from '../types';
 import Sidebar from './Sidebar';
 import { ArrowLeftIcon, ChevronDownIcon, DownloadIcon, EditIcon, GithubIcon, LaptopIcon, MaximizeIcon, RefreshCwIcon, RocketIcon, SaveIcon, Share2Icon } from './icons';
+import CodeView from './CodeView';
+import { generateMockCode } from '../utils/mockCodeGenerator';
 
 interface AppBuilderProps {
   onGoHome: () => void;
@@ -19,7 +18,8 @@ const AppBuilder: React.FC<AppBuilderProps> = ({ onGoHome }) => {
   const [aiResponse, setAiResponse] = useState<AiResponse | null>(null);
   const [mockComponent, setMockComponent] = useState<MockComponentType>(null);
   const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
-
+  const [filesContent, setFilesContent] = useState<Record<string, string> | null>(null);
+  const [refactoringFile, setRefactoringFile] = useState<string | null>(null);
 
   const determineMockComponent = (userPrompt: string): MockComponentType => {
     const lowerCasePrompt = userPrompt.toLowerCase();
@@ -33,23 +33,49 @@ const AppBuilder: React.FC<AppBuilderProps> = ({ onGoHome }) => {
   };
 
   const handleSubmit = useCallback(async () => {
-    if (!prompt.trim()) return;
+    const currentPrompt = prompt.trim();
+    if (!currentPrompt) return;
 
     setIsLoading(true);
     setError(null);
     setAiResponse(null);
     setMockComponent(null);
+    setFilesContent(null);
+    setPrompt(''); // Clear the input field immediately
 
     try {
-      const response = await generateAppCode(prompt);
+      const response = await generateAppCode(currentPrompt);
       setAiResponse(response);
-      setMockComponent(determineMockComponent(prompt));
+      setMockComponent(determineMockComponent(currentPrompt));
+
+      const generatedFiles: Record<string, string> = {};
+      for (const fileName of response.fileList) {
+          generatedFiles[fileName] = generateMockCode(fileName);
+      }
+      setFilesContent(generatedFiles);
     } catch (err: any) {
       setError(err.message || 'An unknown error occurred.');
     } finally {
       setIsLoading(false);
     }
   }, [prompt]);
+  
+  const handleRefactor = useCallback(async (fileName: string) => {
+    if (!filesContent || !filesContent[fileName]) return;
+
+    setRefactoringFile(fileName);
+    setError(null);
+
+    try {
+        const currentCode = filesContent[fileName];
+        const refactored = await refactorCode(currentCode);
+        setFilesContent(prev => prev ? { ...prev, [fileName]: refactored } : null);
+    } catch (err: any) {
+        setError(err.message || 'Failed to refactor code.');
+    } finally {
+        setRefactoringFile(null);
+    }
+  }, [filesContent]);
 
   const renderMainContent = () => {
     if (isLoading) {
@@ -60,15 +86,17 @@ const AppBuilder: React.FC<AppBuilderProps> = ({ onGoHome }) => {
     }
     if (aiResponse) {
         if (activeTab === 'preview') {
-            return (
-                <div className="grid grid-cols-1 md:grid-cols-2 h-full w-full">
-                    <Preview mockComponent={mockComponent} />
-                    <ThoughtProcess response={aiResponse} />
-                </div>
-            );
+            return <Preview mockComponent={mockComponent} />;
         } else {
-            // Code view would go here
-            return <div className="p-4 text-center">Code view not implemented yet.</div>
+            return filesContent ? (
+                <CodeView 
+                    files={filesContent}
+                    onRefactor={handleRefactor}
+                    refactoringFile={refactoringFile}
+                />
+            ) : (
+                <div className="w-full h-full flex items-center justify-center text-zinc-500">Generating code...</div>
+            );
         }
     }
     return <InitialPreview />;
@@ -81,6 +109,7 @@ const AppBuilder: React.FC<AppBuilderProps> = ({ onGoHome }) => {
             onPromptChange={setPrompt}
             onSubmit={handleSubmit}
             isLoading={isLoading}
+            aiResponse={aiResponse}
         />
         <div className="flex-1 flex flex-col min-h-0">
             <header className="flex-shrink-0 bg-zinc-900 border-b border-zinc-800 px-4 py-2 flex items-center justify-between">
