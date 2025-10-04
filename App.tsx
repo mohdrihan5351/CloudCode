@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import AppBuilder from './components/AppBuilder';
 import HomePage from './components/HomePage';
@@ -11,7 +12,7 @@ const App: React.FC = () => {
       case 'landing':
         return <LandingPage onGetStarted={() => setPage('home')} />;
       case 'home':
-        return <HomePage onSelectAppBuilder={() => setPage('appBuilder')} />;
+        return <HomePage onSelectAppBuilder={() => setPage('appBuilder')} onGoBack={() => setPage('landing')} />;
       case 'appBuilder':
         return <AppBuilder onGoHome={() => setPage('home')} />;
       default:
@@ -20,7 +21,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen bg-black text-gray-300 font-sans overflow-hidden">
+    <div className="min-h-screen w-screen bg-black text-gray-300 font-sans">
       {renderPage()}
     </div>
   );

@@ -1,8 +1,17 @@
 
+
 import React from 'react';
 import { SettingsIcon, RefreshCwIcon, SparkleIcon } from './icons';
+import PromptInput from './PromptInput';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+    prompt: string;
+    onPromptChange: (value: string) => void;
+    onSubmit: () => void;
+    isLoading: boolean;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ prompt, onPromptChange, onSubmit, isLoading }) => {
     return (
         <aside className="w-80 bg-zinc-900 text-white p-4 flex flex-col border-r border-zinc-800 flex-shrink-0">
             <div className="flex items-center justify-between pb-4">
@@ -29,6 +38,15 @@ const Sidebar: React.FC = () => {
                  <button className="w-full text-center bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2 rounded-md text-sm transition-colors">
                     Save/Load App State
                 </button>
+            </div>
+
+            <div className="mt-auto">
+              <PromptInput
+                  prompt={prompt}
+                  onPromptChange={onPromptChange}
+                  onSubmit={onSubmit}
+                  isLoading={isLoading}
+              />
             </div>
         </aside>
     );

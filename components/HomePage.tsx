@@ -1,17 +1,24 @@
+
 import React from 'react';
-import { LaptopIcon, RocketIcon } from './icons';
+import { ArrowLeftIcon, LaptopIcon, RocketIcon } from './icons';
 
 interface HomePageProps {
   onSelectAppBuilder: () => void;
+  onGoBack: () => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ onSelectAppBuilder }) => {
+const HomePage: React.FC<HomePageProps> = ({ onSelectAppBuilder, onGoBack }) => {
   return (
-    <div className="flex flex-col h-screen w-screen bg-zinc-900 text-white relative">
+    <div className="flex flex-col min-h-screen w-screen bg-zinc-900 text-white relative">
       <header className="px-8 py-4 flex justify-between items-center border-b border-zinc-800">
-        <h1 className="text-2xl font-bold">
-          Code Cloud<span className="text-xl align-top">☁️</span>
-        </h1>
+        <div className="flex items-center space-x-4">
+            <button onClick={onGoBack} className="p-2 rounded-full hover:bg-zinc-800 transition-colors" aria-label="Go back">
+                <ArrowLeftIcon className="w-5 h-5" />
+            </button>
+            <h1 className="text-2xl font-bold">
+              Code Cloud<span className="text-xl align-top">☁️</span>
+            </h1>
+        </div>
         <nav className="flex items-center space-x-6 text-zinc-300">
           <button className="hover:text-white transition-colors">Profile Management</button>
           <button className="hover:text-white transition-colors">Settings</button>

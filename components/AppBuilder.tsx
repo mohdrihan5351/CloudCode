@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import PromptInput from './PromptInput';
 import ThoughtProcess from './ThoughtProcess';
@@ -5,7 +6,7 @@ import Preview, { InitialPreview, LoadingPreview } from './Preview';
 import { generateAppCode } from '../services/geminiService';
 import type { AiResponse, MockComponentType } from '../types';
 import Sidebar from './Sidebar';
-import { HomeIcon, ChevronDownIcon, DownloadIcon, EditIcon, GithubIcon, LaptopIcon, MaximizeIcon, RefreshCwIcon, RocketIcon, SaveIcon, Share2Icon } from './icons';
+import { ArrowLeftIcon, ChevronDownIcon, DownloadIcon, EditIcon, GithubIcon, LaptopIcon, MaximizeIcon, RefreshCwIcon, RocketIcon, SaveIcon, Share2Icon } from './icons';
 
 interface AppBuilderProps {
   onGoHome: () => void;
@@ -74,14 +75,19 @@ const AppBuilder: React.FC<AppBuilderProps> = ({ onGoHome }) => {
   };
   
   return (
-    <div className="h-screen w-screen bg-black text-gray-300 flex font-sans overflow-hidden">
-        <Sidebar />
+    <div className="h-screen w-screen bg-black text-gray-300 flex font-sans">
+        <Sidebar
+            prompt={prompt}
+            onPromptChange={setPrompt}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+        />
         <div className="flex-1 flex flex-col min-h-0">
             <header className="flex-shrink-0 bg-zinc-900 border-b border-zinc-800 px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                     <button onClick={onGoHome} className="flex items-center space-x-2 text-sm text-zinc-400 hover:text-white">
-                        <HomeIcon className="w-4 h-4" />
-                        <span>Home</span>
+                        <ArrowLeftIcon className="w-5 h-5" />
+                        <span>Back</span>
                     </button>
                     <div className="h-6 border-l border-zinc-700"></div>
                     <div className="flex items-center space-x-2">
@@ -138,18 +144,9 @@ const AppBuilder: React.FC<AppBuilderProps> = ({ onGoHome }) => {
                 </div>
             </div>
 
-            <main className="flex-1 relative bg-black min-h-0">
+            <main className="flex-1 relative bg-black min-h-0 overflow-y-auto">
                 {renderMainContent()}
             </main>
-
-            <div className="flex-shrink-0 bg-black">
-              <PromptInput
-                  prompt={prompt}
-                  onPromptChange={setPrompt}
-                  onSubmit={handleSubmit}
-                  isLoading={isLoading}
-              />
-            </div>
         </div>
     </div>
   );
