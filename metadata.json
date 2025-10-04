@@ -1,0 +1,5 @@
+{
+  "name": "Code Cloud",
+  "description": "A web application that allows users to build and modify other web apps using text prompts and image uploads, powered by AI.",
+  "requestFramePermissions": []
+}
